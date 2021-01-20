@@ -12,4 +12,4 @@ Originally forked and inspired from  [Tailblocks](https://tailblocks.cc) by Mert
 
 2021 Nik Merlock. Code released under [the MIT license](https://github.com/mertjf/tailblocks/blob/master/LICENSE).
 
-#### (Made with [Sapper](https://sapper.svelte.dev/)).
+#### Made with [Sapper](https://sapper.svelte.dev/).
