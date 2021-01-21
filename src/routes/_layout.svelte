@@ -21,85 +21,24 @@ export const preload = () => {
 
 <script>
 import { stores } from "@sapper/app";
+// Icons
+import ArrowKey from "./../icons/ArrowKey.svelte";
+import Code from "./../icons/Code.svelte";
+import Preview from "./../icons/Preview.svelte";
+import View from "./../icons/View.svelte";
+import Clipboard from "./../icons/Clipboard.svelte";
+import GitHub from "./../icons/GitHub.svelte";
+
+// Components/Blocks
 import _BlogA from "./../blocks/blog/a.svelte";
 import _BlogB from "./../blocks/blog/b.svelte";
 import _BlogC from "./../blocks/blog/c.svelte";
 
-export let sidebar = false;
 export let iconList;
 export let blockListArr = [];
 
-const desktopIcon = () => {
-  return `<svg
-    stroke="currentColor"
-    stroke-width=${2}
-    fill="none"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    viewBox="0 0 24 24"
-  >
-    <rect x=${2} y=${3} width=${20} height=${14} rx=${2} ry=${2} />
-    <path d="M8 21h8m-4-4v4" />
-  </svg>`;
-};
-
-const phoneIcon = () => {
-  return `<svg
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    stroke-width=${2}
-    fill="none"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  >
-    <rect x=${5} y=${2} width=${14} height=${20} rx=${2} ry=${2} />
-    <path d="M12 18h.01" />
-  </svg>`;
-};
-
-const tabletIcon = () => {
-  return `<svg
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    stroke-width=${2}
-    fill="none"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  >
-    <rect x=${4} y=${2} width=${16} height=${20} rx=${2} ry=${2} />
-    <path d="M12 18h.01" />
-  </svg>`;
-};
-
-const clipboardIcon = () => {
-  return `<svg
-    viewBox="0 0 25 24"
-    stroke="currentColor"
-    stroke-width=${2}
-    fill="none"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  >
-    <path d="M19.914 1h-18v19"/>
-    <path d="M6 5v18h18V5z"/>
-  </svg>`;
-};
-
-const viewList = [
-  {
-    icon: desktopIcon(),
-    name: "desktop",
-  },
-  {
-    icon: tabletIcon(),
-    name: "tablet",
-  },
-  {
-    icon: phoneIcon(),
-    name: "phone",
-  },
-];
-
+// Enums
+const viewList = ["desktop", "tablet", "phone"];
 const themeList = [
   "indigo",
   "yellow",
@@ -109,20 +48,19 @@ const themeList = [
   "blue",
   "green",
 ];
+
+//TODO: Place below props in store
 let ready = true;
 let darkMode = false;
 let copied = false;
 let codeView = false;
 let currentKeyCode = null;
-let view = "desktop";
+let view: "desktop" | "tablet" | "phone" = "desktop";
 let theme = "indigo";
 let blockType = "Blog";
 let blockName = "BlogA";
 let markup = "";
-
-function handleMenu(event: any) {
-  sidebar = event.detail.value;
-}
+let sidebar: boolean = false;
 
 const getBlock = (theme: string, darkMode: boolean) => {
   return {
@@ -154,7 +92,6 @@ function changeView(e) {
 }
 
 function keyboardNavigation(e) {
-  // const { blockType, blockName } = this.state;
   const blockStringFormat = `${blockName},${blockType}`;
   const keyCode = e.which || e.keyCode;
 
@@ -344,7 +281,7 @@ $: current = $page.path;
           class="copy-the-block copy-to-clipboard"
           on:click="{() => copyToClipboard}"
         >
-          {@html clipboardIcon()}
+          <Clipboard />
           <span>COPY TO CLIPBOARD</span>
         </button>
         <span
@@ -355,30 +292,9 @@ $: current = $page.path;
     {/if}
     <button class="copy-the-block" on:click="{toggleView}">
       {#if !codeView}
-        <svg
-          fill="none"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-        >
-          <path d="M16 18L22 12 16 6"></path>
-          <path d="M8 6L2 12 8 18"></path>
-        </svg>
+        <Code />
       {:else}
-        <svg
-          fill="none"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          class="css-i6dzq1"
-          viewBox="0 0 24 24"
-        >
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-          <circle cx="12" cy="12" r="3"></circle>
-        </svg>
+        <Preview />
       {/if}
       <span>{!codeView ? 'VIEW CODE' : 'PREVIEW'}</span>
     </button>
@@ -397,12 +313,13 @@ $: current = $page.path;
     {#each viewList as v, k}
       <button
         let-key="{k}"
-        class:is-active="{view === v.name}"
+        class:is-active="{view === v}"
         class="device"
-        data-view="{v.name}"
+        data-view="{v}"
         on:click="{(e) => changeView(e)}"
       >
-        {@html v.icon}</button>
+        <View screen="{v}" />
+      </button>
     {/each}
     <button class="mode" on:click="{changeMode}"></button>
   </div>
@@ -413,6 +330,7 @@ $: current = $page.path;
   </div>
   <main class="main" class:opacity-0="{!ready}">
     <div class="view" class:show-code="{!!codeView}">
+      <!-- This is how it rendered the code with IFRAME -->
       <!-- <Frame
         contentDidMount={this.handleContentDidMount}
         contentDidUpdate={this.handleContentDidUpdate}
@@ -445,21 +363,17 @@ $: current = $page.path;
         <!-- <SyntaxHighlighter language="html" style={darkMode ? vs2015 : docco} showLineNumbers>
           {this.beautifyHTML(this.state.markup)}
         </SyntaxHighlighter> -->
+        <!-- TODO: Add highlighted code below -->
       </div>
     </div>
   </main>
   <a
-    href="https://github.com/nikmerlock97/ubiquitous-memory"
+    href="https://github.com/nikmerlock97/svelteblocks"
     class="github"
     target="_blank"
     rel="noopener noreferrer"
   >
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path
-        fill="currentColor"
-        d="M12 .5C5.37.5 0 5.78 0 12.292c0 5.211 3.438 9.63 8.205 11.188.6.111.82-.254.82-.567 0-.28-.01-1.022-.015-2.005-3.338.711-4.042-1.582-4.042-1.582-.546-1.361-1.335-1.725-1.335-1.725-1.087-.731.084-.716.084-.716 1.205.082 1.838 1.215 1.838 1.215 1.07 1.803 2.809 1.282 3.495.981.108-.763.417-1.282.76-1.577-2.665-.295-5.466-1.309-5.466-5.827 0-1.287.465-2.339 1.235-3.164-.135-.298-.54-1.497.105-3.121 0 0 1.005-.316 3.3 1.209.96-.262 1.98-.392 3-.398 1.02.006 2.04.136 3 .398 2.28-1.525 3.285-1.209 3.285-1.209.645 1.624.24 2.823.12 3.121.765.825 1.23 1.877 1.23 3.164 0 4.53-2.805 5.527-5.475 5.817.42.354.81 1.077.81 2.182 0 1.578-.015 2.846-.015 3.229 0 .309.21.678.825.56C20.565 21.917 24 17.495 24 12.292 24 5.78 18.627.5 12 .5z"
-      ></path>
-    </svg>
+    <GitHub />
     GitHub
   </a>
   <div class="keyboard-nav">
@@ -468,16 +382,7 @@ $: current = $page.path;
       class:is-active="{currentKeyCode === 38}"
       data-info="Previous block"
     >
-      <svg
-        stroke="currentColor"
-        stroke-width="2"
-        fill="none"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        viewBox="0 0 24 24"
-      >
-        <path d="M12 19V5M5 12l7-7 7 7"></path>
-      </svg>
+      <ArrowKey dir="{'up'}" />
     </div>
     <div class="keyboard-nav-row">
       <div
@@ -485,48 +390,21 @@ $: current = $page.path;
         class:is-active="{currentKeyCode === 37}"
         data-info="Hide sidebar"
       >
-        <svg
-          stroke="currentColor"
-          stroke-width="2"
-          fill="none"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          viewBox="0 0 24 24"
-        >
-          <path d="M19 12H5M12 19l-7-7 7-7"></path>
-        </svg>
+        <ArrowKey dir="{'left'}" />
       </div>
       <div
         class="k-down keyboard-button"
         class:is-active="{currentKeyCode === 40}"
         data-info="Next block"
       >
-        <svg
-          stroke="currentColor"
-          stroke-width="2"
-          fill="none"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          viewBox="0 0 24 24"
-        >
-          <path d="M12 5v14M19 12l-7 7-7-7"></path>
-        </svg>
+        <ArrowKey dir="{'down'}" />
       </div>
       <div
         class="k-right keyboard-button"
         class:is-active="{currentKeyCode === 39}"
         data-info="Show sidebar"
       >
-        <svg
-          stroke="currentColor"
-          stroke-width="2"
-          fill="none"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          viewBox="0 0 24 24"
-        >
-          <path d="M5 12h14M12 5l7 7-7 7"></path>
-        </svg>
+        <ArrowKey dir="{'right'}" />
       </div>
     </div>
   </div>
