@@ -21,8 +21,7 @@
 
 <script lang="ts">
   import { stores } from "@sapper/app";
-
-  // import Prism from "./../components/Prism/Prism.svelte";
+  import { fade } from "svelte/transition";
   import Prism from "./../components/Prism.svelte";
 
   const code_sample = `
@@ -257,6 +256,17 @@
   $: current = $page.path;
 </script>
 
+<style>
+  .view.dark :global(img) {
+    filter: invert(1) opacity(0.5);
+    mix-blend-mode: luminosity;
+  }
+
+  .view.light > :global(img) {
+    filter: sepia(1) hue-rotate(190deg) opacity(0.46) grayscale(0.7);
+  }
+</style>
+
 <svelte:window on:keydown={keyboardNavigation} />
 <svelte:head>
   {#if sidebar}
@@ -351,33 +361,30 @@
     <svelte:component this={getBlock(theme, darkMode)[blockType][blockName]} />
   </div>
   <main class="main" class:opacity-0={!ready}>
-    <div class="view" class:show-code={!!codeView}>
+    <div
+      class="view"
+      class:dark={!!darkMode}
+      class:light={!darkMode}
+      class:show-code={!!codeView}
+    >
       <!-- TODO: This is how it rendered the code with IFRAME -->
-      <svelte:component
-        this={getBlock(theme, darkMode)[blockType][blockName]}
-        {darkMode}
-        {theme}
-      />
-      <div class="codes">
-        <Prism bind:theme code={code_sample} language="svelte" />
-        <Prism
-          code={`
-            const status: 'NEW' | 'OLD' = 'NEW'
-            console.log('test')
-          `}
-          language="typescript"
+      {#if !codeView}
+        <svelte:component
+          this={getBlock(theme, darkMode)[blockType][blockName]}
+          {darkMode}
+          {theme}
         />
-
-        <Prism
-          code={`
-            let b = 3;
-            function helloworld() {
-              console.log("Hello World");
-            }
-            `}
-          language="js"
-        />
-      </div>
+      {/if}
+      {#if !!codeView}
+        <div transition:fade={{ delay: 0, duration: 250 }} class="codes">
+          <Prism
+            showLineNumbers={true}
+            bind:theme
+            code={code_sample}
+            language="svelte"
+          />
+        </div>
+      {/if}
     </div>
   </main>
   <!-- TODO: Turn below into a component -->

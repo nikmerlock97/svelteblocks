@@ -85,6 +85,7 @@
   </div>
   <svelte:component
     this={_Prism}
+    class="rounded-lg"
     {code}
     {language}
     {normalizeWhiteSpace}

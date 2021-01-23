@@ -704,12 +704,18 @@ code {
   font-variant-ligatures: no-contextual;
 }
 
-.view.show-code iframe {
+/* .view.show-code iframe {
   display: none;
-}
+} */
 
 .view.show-code .codes {
   display: block;
+}
+
+pre[class*="language-"].line-numbers {
+  position: relative;
+  padding-left: 3.8em !important;
+  counter-reset: linenumber;
 }
 
 .github {
@@ -952,6 +958,14 @@ code {
     color: #1a202c;
   }
 
+  .view.dark > * img {
+    filter: invert(1) opacity(0.5);
+    mix-blend-mode: luminosity;
+  }
+
+  .view.light > * img {
+    filter: sepia(1) hue-rotate(190deg) opacity(0.46) grayscale(0.7);
+  }
   .switcher {
     right: 70px;
   }
