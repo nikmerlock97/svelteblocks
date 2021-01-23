@@ -21,6 +21,21 @@ export const preload = () => {
 
 <script>
 import { stores } from "@sapper/app";
+
+import Prism from "./../components/Prism.svelte";
+
+let code_sample = `
+# Create a function to print squares of numbers in sequence.
+new.function <- function(a) {
+   for(i in 1:a) {
+      b <- i^2
+      print(b)
+   }
+}
+
+# Call the function new.function supplying 6 as an argument.
+new.function(6)
+`;
 // Icons
 import ArrowKey from "./../icons/ArrowKey.svelte";
 import Code from "./../icons/Code.svelte";
@@ -364,6 +379,7 @@ $: current = $page.path;
           {this.beautifyHTML(this.state.markup)}
         </SyntaxHighlighter> -->
         <!-- TODO: Add highlighted code below -->
+        <Prism language="r" code="{code_sample}" header="Sameple R Code" />
       </div>
     </div>
   </main>
