@@ -308,8 +308,7 @@
       class="text-lg tracking-widest opener"
       on:click={toggleSidebar}
     >SvelteBlocks</button>
-    {#if !!codeView}
-      <!-- content here -->
+    <!-- {#if !!codeView}
       <div class="clipboard-wrapper">
         <button
           class="copy-the-block copy-to-clipboard"
@@ -323,7 +322,7 @@
           class="clipboard-tooltip"
         >Copied!</span>
       </div>
-    {/if}
+    {/if} -->
     <button class="copy-the-block" on:click={toggleView}>
       {#if !codeView}
         <Code />
