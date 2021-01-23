@@ -1,9 +1,9 @@
 <script>
-export let status: number;
-export let error: Error;
+  export let status: number;
+  export let error: Error;
 
-const mode = process.env.NODE_ENV;
-const dev = mode === "development";
+  const mode = process.env.NODE_ENV;
+  const dev = mode === "development";
 </script>
 
 <section class="flex flex-col items-center justify-center flex-1">

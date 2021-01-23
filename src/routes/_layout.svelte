@@ -1,284 +1,293 @@
 <script context="module">
-import blogA from "./../icons/blog/a.svelte";
-import blogB from "./../icons/blog/b.svelte";
-import blogC from "./../icons/blog/c.svelte";
-export const preload = () => {
-  const blockListArr = [];
-  const iconList = {
-    Blog: {
-      BlogA: blogA,
-      BlogB: blogB,
-      BlogC: blogC,
-    },
-  };
-  Object.entries(iconList).forEach(([type, icons]) => {
-    Object.keys(icons).map((name) => blockListArr.push(`${name},${type}`));
-  });
+  import blogA from "./../icons/blog/a.svelte";
+  import blogB from "./../icons/blog/b.svelte";
+  import blogC from "./../icons/blog/c.svelte";
+  export const preload = () => {
+    const blockListArr = [];
+    const iconList = {
+      Blog: {
+        BlogA: blogA,
+        BlogB: blogB,
+        BlogC: blogC,
+      },
+    };
+    Object.entries(iconList).forEach(([type, icons]) => {
+      Object.keys(icons).map((name) => blockListArr.push(`${name},${type}`));
+    });
 
-  return { blockListArr, iconList };
-};
+    return { blockListArr, iconList };
+  };
 </script>
 
-<script>
-import { stores } from "@sapper/app";
+<script lang="ts">
+  import { stores } from "@sapper/app";
 
-import Prism from "./../components/Prism.svelte";
+  // import Prism from "./../components/Prism/Prism.svelte";
+  import Prism from "./../components/Prism.svelte";
 
-let code_sample = `
-# Create a function to print squares of numbers in sequence.
-new.function <- function(a) {
-   for(i in 1:a) {
-      b <- i^2
-      print(b)
-   }
-}
+  const code_sample = `
+<script lang="ts">
+  let count: number = 0;
+</script\>
 
-# Call the function new.function supplying 6 as an argument.
-new.function(6)
-`;
-// Icons
-import ArrowKey from "./../icons/ArrowKey.svelte";
-import Code from "./../icons/Code.svelte";
-import Preview from "./../icons/Preview.svelte";
-import View from "./../icons/View.svelte";
-import Clipboard from "./../icons/Clipboard.svelte";
-import GitHub from "./../icons/GitHub.svelte";
+\<button on:click={ () => count++ }\>Hello</button\>
 
-// Components/Blocks
-import _BlogA from "./../blocks/blog/a.svelte";
-import _BlogB from "./../blocks/blog/b.svelte";
-import _BlogC from "./../blocks/blog/c.svelte";
+\<h1\>{ count }</h1\>
 
-export let iconList;
-export let blockListArr = [];
+<ul\>
+  {#each Array(10).map((_, i) => i) as }
+    <li on:click={() => count = i}>Set count to {i}</li>
+  {/each}
+</ul\>
+` as string;
+  // Icons
+  import ArrowKey from "./../icons/ArrowKey.svelte";
+  import Code from "./../icons/Code.svelte";
+  import Preview from "./../icons/Preview.svelte";
+  import View from "./../icons/View.svelte";
+  import Clipboard from "./../icons/Clipboard.svelte";
+  import GitHub from "./../icons/GitHub.svelte";
 
-// Enums
-const viewList = ["desktop", "tablet", "phone"];
-const themeList = [
-  "indigo",
-  "yellow",
-  "red",
-  "purple",
-  "pink",
-  "blue",
-  "green",
-];
+  // Components/Blocks
+  import _BlogA from "./../blocks/blog/a.svelte";
+  import _BlogB from "./../blocks/blog/b.svelte";
+  import _BlogC from "./../blocks/blog/c.svelte";
 
-//TODO: Place below props in store
-let ready = true;
-let darkMode = false;
-let copied = false;
-let codeView = false;
-let currentKeyCode = null;
-let view: "desktop" | "tablet" | "phone" = "desktop";
-let theme = "indigo";
-let blockType = "Blog";
-let blockName = "BlogA";
-let markup = "";
-let sidebar: boolean = false;
+  export let iconList;
+  export let blockListArr = [];
 
-const getBlock = (theme: string, darkMode: boolean) => {
-  return {
-    Blog: {
-      BlogA: _BlogA,
-      BlogB: _BlogB,
-      BlogC: _BlogC,
-    },
+  // Enums
+  const viewList = ["desktop", "tablet", "phone"];
+  const themeList = [
+    "indigo",
+    "yellow",
+    "red",
+    "purple",
+    "pink",
+    "blue",
+    "green",
+  ];
+
+  //TODO: Place below props in store
+  let ready = true;
+  let darkMode = false;
+  let copied = false;
+  let codeView = false;
+  let currentKeyCode = null;
+  let view: "desktop" | "tablet" | "phone" = "desktop";
+  let theme = "indigo";
+  let blockType = "Blog";
+  let blockName = "BlogA";
+  let markup = "";
+  let sidebar: boolean = false;
+
+  const getBlock = (theme: string, darkMode: boolean) => {
+    return {
+      Blog: {
+        BlogA: _BlogA,
+        BlogB: _BlogB,
+        BlogC: _BlogC,
+      },
+    };
   };
-};
 
-const changeBlock = (_blockName, _blockType) => {
-  codeView = false;
-  blockType = _blockType;
-  blockName = _blockName;
-};
+  const changeBlock = (_blockName, _blockType) => {
+    codeView = false;
+    blockType = _blockType;
+    blockName = _blockName;
+  };
 
-function changeTheme(e) {
-  const { currentTarget } = e;
-  const _theme = currentTarget.getAttribute("data-theme");
-  theme = _theme;
-}
-
-function changeView(e) {
-  const { currentTarget } = e;
-  const _view = currentTarget.getAttribute("data-view");
-  view = _view;
-  codeView = false;
-}
-
-function keyboardNavigation(e) {
-  const blockStringFormat = `${blockName},${blockType}`;
-  const keyCode = e.which || e.keyCode;
-
-  switch (keyCode) {
-    case 40: // Down
-      e.preventDefault();
-      blockListArr.forEach((block, index) => {
-        if (block === blockStringFormat) {
-          const newActiveBlock =
-            index + 1 <= blockListArr.length - 1
-              ? blockListArr[index + 1].split(",")
-              : blockListArr[0].split(",");
-          const newBlockName = newActiveBlock[0];
-          const newBlockType = newActiveBlock[1];
-          const newBlockNode = document.querySelector(
-            `.block-item[block-name="${newBlockName}"]`
-          );
-          if (newBlockNode)
-            // newBlockNode.focus();
-            blockType = newBlockType;
-          blockName = newBlockName;
-          codeView = false;
-          currentKeyCode = 40;
-        }
-      });
-      break;
-    case 37: // Left
-      e.preventDefault();
-      sidebar = false;
-      currentKeyCode = 37;
-      break;
-    case 39: // Right
-      e.preventDefault();
-      sidebar = true;
-      currentKeyCode = 39;
-      break;
-    case 38: // Up
-      e.preventDefault();
-      blockListArr.forEach((block, index) => {
-        if (block === blockStringFormat) {
-          const newActiveBlock =
-            index - 1 >= 0
-              ? blockListArr[index - 1].split(",")
-              : blockListArr[blockListArr.length - 1].split(",");
-          const newBlockName = newActiveBlock[0];
-          const newBlockType = newActiveBlock[1];
-          const newBlockNode = document.querySelector(
-            `.block-item[block-name="${newBlockName}"]`
-          );
-          if (newBlockNode)
-            // newBlockNode.focus();
-            blockName = newBlockName;
-          blockType = newBlockType;
-          codeView = false;
-          currentKeyCode = 38;
-        }
-      });
-      break;
-    default:
-      return;
+  function changeTheme(e) {
+    const { currentTarget } = e;
+    const _theme = currentTarget.getAttribute("data-theme");
+    theme = _theme;
   }
 
-  setTimeout(() => {
-    if (keyCode === 37 || keyCode === 38 || keyCode === 39 || keyCode === 40) {
-      currentKeyCode = null;
+  function changeView(e) {
+    const { currentTarget } = e;
+    const _view = currentTarget.getAttribute("data-view");
+    view = _view;
+    codeView = false;
+  }
+
+  function keyboardNavigation(e) {
+    const blockStringFormat = `${blockName},${blockType}`;
+    const keyCode = e.which || e.keyCode;
+
+    switch (keyCode) {
+      case 40: // Down
+        e.preventDefault();
+        blockListArr.forEach((block, index) => {
+          if (block === blockStringFormat) {
+            const newActiveBlock =
+              index + 1 <= blockListArr.length - 1
+                ? blockListArr[index + 1].split(",")
+                : blockListArr[0].split(",");
+            const newBlockName = newActiveBlock[0];
+            const newBlockType = newActiveBlock[1];
+            const newBlockNode = document.querySelector(
+              `.block-item[block-name="${newBlockName}"]`
+            );
+            if (newBlockNode)
+              // newBlockNode.focus();
+              blockType = newBlockType;
+            blockName = newBlockName;
+            codeView = false;
+            currentKeyCode = 40;
+          }
+        });
+        break;
+      case 37: // Left
+        e.preventDefault();
+        sidebar = false;
+        currentKeyCode = 37;
+        break;
+      case 39: // Right
+        e.preventDefault();
+        sidebar = true;
+        currentKeyCode = 39;
+        break;
+      case 38: // Up
+        e.preventDefault();
+        blockListArr.forEach((block, index) => {
+          if (block === blockStringFormat) {
+            const newActiveBlock =
+              index - 1 >= 0
+                ? blockListArr[index - 1].split(",")
+                : blockListArr[blockListArr.length - 1].split(",");
+            const newBlockName = newActiveBlock[0];
+            const newBlockType = newActiveBlock[1];
+            const newBlockNode = document.querySelector(
+              `.block-item[block-name="${newBlockName}"]`
+            );
+            if (newBlockNode)
+              // newBlockNode.focus();
+              blockName = newBlockName;
+            blockType = newBlockType;
+            codeView = false;
+            currentKeyCode = 38;
+          }
+        });
+        break;
+      default:
+        return;
     }
-  }, 200);
-}
 
-function beautifyHTML(codeStr) {
-  const process = (str) => {
-    let div = document.createElement("div");
-    div.innerHTML = str.trim();
-    return format(div, 0).innerHTML.trim();
-  };
-
-  const format = (node, level) => {
-    let indentBefore = new Array(level++ + 1).join("  "),
-      indentAfter = new Array(level - 1).join("  "),
-      textNode;
-
-    for (let i = 0; i < node.children.length; i++) {
-      textNode = document.createTextNode("\n" + indentBefore);
-      node.insertBefore(textNode, node.children[i]);
-
-      format(node.children[i], level);
-
-      if (node.lastElementChild === node.children[i]) {
-        textNode = document.createTextNode("\n" + indentAfter);
-        node.appendChild(textNode);
+    setTimeout(() => {
+      if (
+        keyCode === 37 ||
+        keyCode === 38 ||
+        keyCode === 39 ||
+        keyCode === 40
+      ) {
+        currentKeyCode = null;
       }
-    }
+    }, 200);
+  }
 
-    return node;
+  function beautifyHTML(codeStr) {
+    const process = (str) => {
+      let div = document.createElement("div");
+      div.innerHTML = str.trim();
+      return format(div, 0).innerHTML.trim();
+    };
+
+    const format = (node, level) => {
+      let indentBefore = new Array(level++ + 1).join("  "),
+        indentAfter = new Array(level - 1).join("  "),
+        textNode;
+
+      for (let i = 0; i < node.children.length; i++) {
+        textNode = document.createTextNode("\n" + indentBefore);
+        node.insertBefore(textNode, node.children[i]);
+
+        format(node.children[i], level);
+
+        if (node.lastElementChild === node.children[i]) {
+          textNode = document.createTextNode("\n" + indentAfter);
+          node.appendChild(textNode);
+        }
+      }
+
+      return node;
+    };
+    return process(codeStr);
+  }
+
+  function copyToClipboard() {
+    const code = beautifyHTML(markup);
+    var input = document.createElement("textarea");
+    input.innerHTML = code;
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand("copy");
+    document.body.removeChild(input);
+    copied = true;
+    setTimeout(() => {
+      copied = false;
+    }, 2000);
+  }
+
+  const toggleView = () => {
+    codeView = !codeView;
+    view = "desktop";
+    markup = "";
+    // this.setState({ codeView: !this.state.codeView, view: 'desktop', markup: this.markupRef.current.innerHTML })
   };
-  return process(codeStr);
-}
 
-function copyToClipboard() {
-  const code = beautifyHTML(markup);
-  var input = document.createElement("textarea");
-  input.innerHTML = code;
-  document.body.appendChild(input);
-  input.select();
-  document.execCommand("copy");
-  document.body.removeChild(input);
-  copied = true;
-  setTimeout(() => {
-    copied = false;
-  }, 2000);
-}
+  const toggleSidebar = () => {
+    sidebar = !sidebar;
+  };
 
-const toggleView = () => {
-  codeView = !codeView;
-  view = "desktop";
-  markup = "";
-  // this.setState({ codeView: !this.state.codeView, view: 'desktop', markup: this.markupRef.current.innerHTML })
-};
+  const changeMode = () => {
+    darkMode = !darkMode;
+  };
 
-const toggleSidebar = () => {
-  sidebar = !sidebar;
-};
+  // You may not want to use `segment`, but it is passed for the time being and will
+  // create a warning if not expected: https://github.com/sveltejs/sapper-template/issues/210
+  // https://github.com/sveltejs/sapper/issues/824
+  export let segment: string = "";
+  // Silence unused export property warning
+  if (segment) {
+  }
 
-const changeMode = () => {
-  darkMode = !darkMode;
-};
+  const { page } = stores();
 
-// You may not want to use `segment`, but it is passed for the time being and will
-// create a warning if not expected: https://github.com/sveltejs/sapper-template/issues/210
-// https://github.com/sveltejs/sapper/issues/824
-export let segment: string = "";
-// Silence unused export property warning
-if (segment) {
-}
-
-const { page } = stores();
-
-let current: string;
-$: current = $page.path;
+  let current: string;
+  $: current = $page.path;
 </script>
 
-<svelte:window on:keydown="{keyboardNavigation}" />
+<svelte:window on:keydown={keyboardNavigation} />
 <svelte:head>
   {#if sidebar}
     <style>
-    body {
-      overflow: hidden;
-    }
+      body {
+        overflow: hidden;
+      }
     </style>
   {/if}
 </svelte:head>
 <div
-  class:has-sidebar="{!!sidebar}"
-  class:dark-mode="{!!darkMode}"
+  class:has-sidebar={!!sidebar}
+  class:dark-mode={!!darkMode}
   class="app {theme} {view}"
 >
-  <textarea class="copy-textarea"></textarea>
+  <textarea class="copy-textarea" />
   <aside class="sidebar">
     {#each Object.entries(iconList) as [type, icons]}
-      <div class="blocks" let-key="{type}">
+      <div class="blocks" let-key={type}>
         <div class="block-category">{type}</div>
         <div class="block-list">
           {#each Object.entries(icons) as icon}
             <button
-              let-key="{icon[0]}"
+              let-key={icon[0]}
               tabIndex="0"
-              on:click="{() => changeBlock(icon[0], type)}"
+              on:click={() => changeBlock(icon[0], type)}
               class="block-item"
-              class:is-active="{icon[0] === blockName}"
-              block-type="{type}"
-              block-name="{icon[0]}"
-            ><svelte:component this="{icon[1]}" /></button>
+              class:is-active={icon[0] === blockName}
+              block-type={type}
+              block-name={icon[0]}
+            ><svelte:component this={icon[1]} /></button>
           {/each}
         </div>
       </div>
@@ -287,25 +296,25 @@ $: current = $page.path;
   <div class="toolbar">
     <button
       class="text-lg tracking-widest opener"
-      on:click="{toggleSidebar}"
+      on:click={toggleSidebar}
     >SvelteBlocks</button>
     {#if !!codeView}
       <!-- content here -->
       <div class="clipboard-wrapper">
         <button
           class="copy-the-block copy-to-clipboard"
-          on:click="{() => copyToClipboard}"
+          on:click={() => copyToClipboard}
         >
           <Clipboard />
           <span>COPY TO CLIPBOARD</span>
         </button>
         <span
-          class:is-copied="{!!copied}"
+          class:is-copied={!!copied}
           class="clipboard-tooltip"
         >Copied!</span>
       </div>
     {/if}
-    <button class="copy-the-block" on:click="{toggleView}">
+    <button class="copy-the-block" on:click={toggleView}>
       {#if !codeView}
         <Code />
       {:else}
@@ -316,73 +325,62 @@ $: current = $page.path;
     <div class="switcher">
       {#each themeList as t, k}
         <button
-          let-key="{k}"
-          data-theme="{t}"
-          on:keydown="{(event) => keyboardNavigation(event)}"
+          let-key={k}
+          data-theme={t}
+          on:keydown={(event) => keyboardNavigation(event)}
           class="theme-button bg-{t}-500"
-          class:is-active="{theme === t}"
-          on:click="{changeTheme}"
-        ></button>
+          class:is-active={theme === t}
+          on:click={changeTheme}
+        />
       {/each}
     </div>
     {#each viewList as v, k}
       <button
-        let-key="{k}"
-        class:is-active="{view === v}"
+        let-key={k}
+        class:is-active={view === v}
         class="device"
-        data-view="{v}"
-        on:click="{(e) => changeView(e)}"
+        data-view={v}
+        on:click={(e) => changeView(e)}
       >
-        <View screen="{v}" />
+        <View screen={v} />
       </button>
     {/each}
-    <button class="mode" on:click="{changeMode}"></button>
+    <button class="mode" on:click={changeMode} />
   </div>
   <div class="markup">
-    <svelte:component
-      this="{getBlock(theme, darkMode)[blockType][blockName]}"
-    />
+    <svelte:component this={getBlock(theme, darkMode)[blockType][blockName]} />
   </div>
-  <main class="main" class:opacity-0="{!ready}">
-    <div class="view" class:show-code="{!!codeView}">
-      <!-- This is how it rendered the code with IFRAME -->
-      <!-- <Frame
-        contentDidMount={this.handleContentDidMount}
-        contentDidUpdate={this.handleContentDidUpdate}
-        head={
-          <>
-          <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.0.2/tailwind.min.css" rel="stylesheet" />
-          {
-            <style dangerouslySetInnerHTML={{__html:
-              `img { filter:
-                ${darkMode ?
-                  'invert(1) opacity(.5); mix-blend-mode: luminosity; }'
-                  :
-                  'sepia(1) hue-rotate(190deg) opacity(.46) grayscale(.7) }'
-                }`
-              }}
-            />
-          }
-          </>
-        }
-      >
-        {getBlock({ theme, darkMode })[blockType][blockName]}
-      </Frame> -->
+  <main class="main" class:opacity-0={!ready}>
+    <div class="view" class:show-code={!!codeView}>
+      <!-- TODO: This is how it rendered the code with IFRAME -->
       <svelte:component
-        this="{getBlock(theme, darkMode)[blockType][blockName]}"
-        darkMode="{darkMode}"
-        theme="{theme}"
+        this={getBlock(theme, darkMode)[blockType][blockName]}
+        {darkMode}
+        {theme}
       />
       <div class="codes">
-        <!-- {beautifyHTML(markup)} -->
-        <!-- <SyntaxHighlighter language="html" style={darkMode ? vs2015 : docco} showLineNumbers>
-          {this.beautifyHTML(this.state.markup)}
-        </SyntaxHighlighter> -->
-        <!-- TODO: Add highlighted code below -->
-        <Prism language="r" code="{code_sample}" header="Sameple R Code" />
+        <Prism bind:theme code={code_sample} language="svelte" />
+        <Prism
+          code={`
+            const status: 'NEW' | 'OLD' = 'NEW'
+            console.log('test')
+          `}
+          language="typescript"
+        />
+
+        <Prism
+          code={`
+            let b = 3;
+            function helloworld() {
+              console.log("Hello World");
+            }
+            `}
+          language="js"
+        />
       </div>
     </div>
   </main>
+  <!-- TODO: Turn below into a component -->
   <a
     href="https://github.com/nikmerlock97/svelteblocks"
     class="github"
@@ -392,35 +390,36 @@ $: current = $page.path;
     <GitHub />
     GitHub
   </a>
+  <!-- TODO: Turn below into a component -->
   <div class="keyboard-nav">
     <div
       class="k-up keyboard-button"
-      class:is-active="{currentKeyCode === 38}"
+      class:is-active={currentKeyCode === 38}
       data-info="Previous block"
     >
-      <ArrowKey dir="{'up'}" />
+      <ArrowKey dir={'up'} />
     </div>
     <div class="keyboard-nav-row">
       <div
         class="k-left keyboard-button"
-        class:is-active="{currentKeyCode === 37}"
+        class:is-active={currentKeyCode === 37}
         data-info="Hide sidebar"
       >
-        <ArrowKey dir="{'left'}" />
+        <ArrowKey dir={'left'} />
       </div>
       <div
         class="k-down keyboard-button"
-        class:is-active="{currentKeyCode === 40}"
+        class:is-active={currentKeyCode === 40}
         data-info="Next block"
       >
-        <ArrowKey dir="{'down'}" />
+        <ArrowKey dir={'down'} />
       </div>
       <div
         class="k-right keyboard-button"
-        class:is-active="{currentKeyCode === 39}"
+        class:is-active={currentKeyCode === 39}
         data-info="Show sidebar"
       >
-        <ArrowKey dir="{'right'}" />
+        <ArrowKey dir={'right'} />
       </div>
     </div>
   </div>

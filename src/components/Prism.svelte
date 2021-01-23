@@ -1,79 +1,93 @@
-<script>
-import { onMount } from "svelte";
+<script lang="ts">
+  import CopyToClipboard from "./CopyClipBoard.svelte";
 
-export let language;
-export let code;
-export let header;
+  import { onMount } from "svelte";
+  import Clipboard from "./../icons/Clipboard.svelte";
+  let _Prism: any;
 
-onMount(() => {
-  let script = document.createElement("script");
-  script.src =
-    "https://tutsplus.github.io/syntax-highlighter-demos/highlighters/Prism/prism.js";
-  document.head.append(script);
+  type Language =
+    | "js"
+    | "javascript"
+    | "typescript"
+    | "svelte"
+    | "css"
+    | "scss";
 
-  script.onload = function () {
-    let langJS = false;
-    let lang_script;
-    let lang_module;
+  /** Source Code to Display */
+  export let code = "let b = 4;";
+  /** Language of Source Code */
+  export let language: Language = "typescript";
+  /** Fix spacing */
+  export let normalizeWhiteSpace = true;
+  /** Display Number Lines */
+  export let showLineNumbers = false;
 
-    // This switch statement, evaluates what language is being used, if one of a key language is being used, it will
-    // load the proper Prisim support tool, like Python requires "prism-python.js" to modify the raw code so that
-    // Prisim can render it properly.
-    switch (language) {
-      case "json":
-        lang_module = "https://prismjs.com/components/prism-json.js";
-        langJS = true;
-        break;
+  export let theme: string = "indigo";
 
-      case "python":
-        lang_module = "https://prismjs.com/components/prism-python.js";
-        langJS = true;
-        break;
+  export let copied = false;
 
-      case "rust":
-        lang_module = "https://prismjs.com/components/prism-rust.js";
-        langJS = true;
-        break;
+  onMount(async () => {
+    // Load the prismjs first after the page is loaded
+    const prismModule = await import("svelte-prismjs");
+    await import("prismjs/components/prism-javascript.js");
+    await import("prismjs/components/prism-typescript.js");
+    await import("prismjs/components/prism-graphql.js");
+    await import("prismjs/components/prism-css.js");
+    await import("prismjs/components/prism-scss.js");
+    await import("prism-svelte");
 
-      case "r":
-        lang_module = "https://prismjs.com/components/prism-r.js";
-        langJS = true;
-        break;
+    await import("prismjs/plugins/line-highlight/prism-line-highlight.js");
+    await import("prismjs/plugins/file-highlight/prism-file-highlight.js");
+    // Once everything is loaded load the prismjs module
+    _Prism = prismModule.default;
+  });
 
-      case "sql":
-        lang_module = "https://prismjs.com/components/prism-sql.js";
-        langJS = true;
-        break;
-    }
-
-    if (langJS == true) {
-      lang_script = document.createElement("script");
-      lang_script.src = lang_module;
-      lang_script.async = true;
-      document.head.append(lang_script);
-
-      lang_script.onload = () => {
-        Prism.highlightAll();
-      };
-    } else {
-      Prism.highlightAll();
-    }
-  };
-});
+  function copyToClipboard() {
+    // const code = beautifyHTML(markup);
+    // var input = document.createElement("textarea");
+    // input.innerHTML = code;
+    // document.body.appendChild(input);
+    // input.select();
+    // document.execCommand("copy");
+    // document.body.removeChild(input);
+    copied = true;
+    setTimeout(() => {
+      copied = false;
+    }, 2000);
+  }
 </script>
 
-<svelte:head>
-  <link
-    rel="stylesheet"
-    href="https://fonts.googleapis.com/css?family=Open+Sans:400,700"
-    type="text/css"
+<div class="container relative mx-auto">
+  <div class="absolute rounded-full shadow-md cursor-pointer top-4 right-4">
+    <CopyToClipboard
+      text={code}
+      on:copy={({ detail }) => {
+        // TODO: Notification Popup displaying "Copied!"
+        copyToClipboard();
+      }}
+      let:copy
+    >
+      <!-- <span class="text-black" on:click={copy}>COPY</span> -->
+      <div class="clipboard-wrapper">
+        <button
+          class="bg-{theme}-500 copy-the-block copy-to-clipboard"
+          on:click={copy}
+        >
+          <Clipboard />
+          <span>COPY TO CLIPBOARD</span>
+        </button>
+        <span
+          class:is-copied={!!copied}
+          class="clipboard-tooltip"
+        >Copied!</span>
+      </div>
+    </CopyToClipboard>
+  </div>
+  <svelte:component
+    this={_Prism}
+    {code}
+    {language}
+    {normalizeWhiteSpace}
+    {showLineNumbers}
   />
-  <link
-    rel="stylesheet"
-    href="https://tutsplus.github.io/syntax-highlighter-demos/highlighters/Prism/prism_okaidia.css"
-  />
-</svelte:head>
-<div class="w3-container">
-  <h2>{header}</h2>
-  <pre><code class="language-{language}">{code}</code></pre>
 </div>

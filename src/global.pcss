@@ -666,7 +666,16 @@ svg {
   transition: 0.3s;
 }
 
-.dark-mode .view.show-code,
+.language-css .token.string,
+.style .token.string,
+.token.entity,
+.token.operator,
+.token.url {
+  color: #9a6e3a !important;
+  background: hsla(0, 0%, 100%, 0) !important;
+}
+
+/* .dark-mode .view.show-code,
 .dark-mode .codes pre {
   background-color: #1a202c !important;
 }
@@ -674,7 +683,7 @@ svg {
 .view.show-code,
 .codes pre {
   background-color: #fff !important;
-}
+} */
 
 .codes pre {
   padding: 20px !important;

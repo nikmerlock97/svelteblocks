@@ -31,7 +31,7 @@
 	"include": [
 		"src/**/*",
 		"src/node_modules/**/*"
-	],
+, "static/prism-svelte.js"	],
 	"exclude": [
 		"node_modules/*",
 		"__sapper__/*",
