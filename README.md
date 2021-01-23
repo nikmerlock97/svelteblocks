@@ -1,4 +1,4 @@
-# SvelteBlocks
+# :bricks: SvelteBlocks
 ### Ready-to-use Svelte + Tailwind CSS code blocks
 ##### Features
 
