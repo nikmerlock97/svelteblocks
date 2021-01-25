@@ -10,6 +10,9 @@
         BlogB: blogB,
         BlogC: blogC,
       },
+      Lottie: {
+        LottieA: blogA,
+      },
     };
     Object.entries(iconList).forEach(([type, icons]) => {
       Object.keys(icons).map((name) => blockListArr.push(`${name},${type}`));
@@ -51,6 +54,7 @@
   import _BlogA from "./../blocks/blog/a.svelte";
   import _BlogB from "./../blocks/blog/b.svelte";
   import _BlogC from "./../blocks/blog/c.svelte";
+  import _LottieA from "./../blocks/lottie/a.svelte";
 
   export let iconList;
   export let blockListArr = [];
@@ -86,6 +90,9 @@
         BlogA: _BlogA,
         BlogB: _BlogB,
         BlogC: _BlogC,
+      },
+      Lottie: {
+        LottieA: _LottieA,
       },
     };
   };
