@@ -284,38 +284,39 @@
     </style>
   {/if}
 </svelte:head>
-<div
-  class:has-sidebar={!!sidebar}
-  class:dark-mode={!!darkMode}
-  class="app {theme} {view}"
->
-  <textarea class="copy-textarea" />
-  <aside class="sidebar">
-    {#each Object.entries(iconList) as [type, icons]}
-      <div class="blocks" let-key={type}>
-        <div class="block-category">{type}</div>
-        <div class="block-list">
-          {#each Object.entries(icons) as icon}
-            <button
-              let-key={icon[0]}
-              tabIndex="0"
-              on:click={() => changeBlock(icon[0], type)}
-              class="block-item"
-              class:is-active={icon[0] === blockName}
-              block-type={type}
-              block-name={icon[0]}
-            ><svelte:component this={icon[1]} /></button>
-          {/each}
+{#if current === '/'}
+  <div
+    class:has-sidebar={!!sidebar}
+    class:dark-mode={!!darkMode}
+    class="app {theme} {view}"
+  >
+    <textarea class="copy-textarea" />
+    <aside class="sidebar">
+      {#each Object.entries(iconList) as [type, icons]}
+        <div class="blocks" let-key={type}>
+          <div class="block-category">{type}</div>
+          <div class="block-list">
+            {#each Object.entries(icons) as icon}
+              <button
+                let-key={icon[0]}
+                tabIndex="0"
+                on:click={() => changeBlock(icon[0], type)}
+                class="block-item"
+                class:is-active={icon[0] === blockName}
+                block-type={type}
+                block-name={icon[0]}
+              ><svelte:component this={icon[1]} /></button>
+            {/each}
+          </div>
         </div>
-      </div>
-    {/each}
-  </aside>
-  <div class="toolbar">
-    <button
-      class="text-lg tracking-widest opener"
-      on:click={toggleSidebar}
-    >SvelteBlocks</button>
-    <!-- {#if !!codeView}
+      {/each}
+    </aside>
+    <div class="toolbar">
+      <button
+        class="text-lg tracking-widest opener"
+        on:click={toggleSidebar}
+      >SvelteBlocks</button>
+      <!-- {#if !!codeView}
       <div class="clipboard-wrapper">
         <button
           class="copy-the-block copy-to-clipboard"
@@ -330,110 +331,116 @@
         >Copied!</span>
       </div>
     {/if} -->
-    <button class="copy-the-block" on:click={toggleView}>
-      {#if !codeView}
-        <Code />
-      {:else}
-        <Preview />
-      {/if}
-      <span>{!codeView ? 'VIEW CODE' : 'PREVIEW'}</span>
-    </button>
-    <div class="switcher">
-      {#each themeList as t, k}
+      <button class="copy-the-block" on:click={toggleView}>
+        {#if !codeView}
+          <Code />
+        {:else}
+          <Preview />
+        {/if}
+        <span>{!codeView ? 'VIEW CODE' : 'PREVIEW'}</span>
+      </button>
+      <div class="switcher">
+        {#each themeList as t, k}
+          <button
+            let-key={k}
+            data-theme={t}
+            on:keydown={(event) => keyboardNavigation(event)}
+            class="theme-button bg-{t}-500"
+            class:is-active={theme === t}
+            on:click={changeTheme}
+          />
+        {/each}
+      </div>
+      {#each viewList as v, k}
         <button
           let-key={k}
-          data-theme={t}
-          on:keydown={(event) => keyboardNavigation(event)}
-          class="theme-button bg-{t}-500"
-          class:is-active={theme === t}
-          on:click={changeTheme}
-        />
+          class:is-active={view === v}
+          class="device"
+          data-view={v}
+          on:click={(e) => changeView(e)}
+        >
+          <View screen={v} />
+        </button>
       {/each}
+      <button class="mode" on:click={changeMode} />
     </div>
-    {#each viewList as v, k}
-      <button
-        let-key={k}
-        class:is-active={view === v}
-        class="device"
-        data-view={v}
-        on:click={(e) => changeView(e)}
+    <div class="markup">
+      <svelte:component
+        this={getBlock(theme, darkMode)[blockType][blockName]}
+      />
+    </div>
+    <main class="main" class:opacity-0={!ready}>
+      <div
+        class="view"
+        class:dark={!!darkMode}
+        class:light={!darkMode}
+        class:show-code={!!codeView}
       >
-        <View screen={v} />
-      </button>
-    {/each}
-    <button class="mode" on:click={changeMode} />
-  </div>
-  <div class="markup">
-    <svelte:component this={getBlock(theme, darkMode)[blockType][blockName]} />
-  </div>
-  <main class="main" class:opacity-0={!ready}>
-    <div
-      class="view"
-      class:dark={!!darkMode}
-      class:light={!darkMode}
-      class:show-code={!!codeView}
-    >
-      <!-- TODO: This is how it rendered the code with IFRAME -->
-      {#if !codeView}
-        <svelte:component
-          this={getBlock(theme, darkMode)[blockType][blockName]}
-          {darkMode}
-          {theme}
-        />
-      {/if}
-      {#if !!codeView}
-        <div transition:fade={{ delay: 0, duration: 250 }} class="codes">
-          <Prism
-            showLineNumbers={true}
-            bind:theme
-            code={code_sample}
-            language="svelte"
+        <!-- TODO: This is how it rendered the code with IFRAME -->
+        {#if !codeView}
+          <!-- <iframe src="http://localhost:3000/a" frameborder="0" /> -->
+          <svelte:component
+            this={getBlock(theme, darkMode)[blockType][blockName]}
+            {darkMode}
+            {theme}
           />
-        </div>
-      {/if}
-    </div>
-  </main>
-  <!-- TODO: Turn below into a component -->
-  <a
-    href="https://github.com/nikmerlock97/svelteblocks"
-    class="github"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    <GitHub />
-    GitHub
-  </a>
-  <!-- TODO: Turn below into a component -->
-  <div class="keyboard-nav">
-    <div
-      class="k-up keyboard-button"
-      class:is-active={currentKeyCode === 38}
-      data-info="Previous block"
+        {/if}
+        {#if !!codeView}
+          <div transition:fade={{ delay: 0, duration: 250 }} class="codes">
+            <Prism
+              showLineNumbers={true}
+              bind:theme
+              code={code_sample}
+              language="svelte"
+            />
+          </div>
+        {/if}
+      </div>
+    </main>
+    <!-- TODO: Turn below into a component -->
+    <a
+      href="https://github.com/nikmerlock97/svelteblocks"
+      class="github"
+      target="_blank"
+      rel="noopener noreferrer"
     >
-      <ArrowKey dir={'up'} />
-    </div>
-    <div class="keyboard-nav-row">
+      <GitHub />
+      GitHub
+    </a>
+    <!-- TODO: Turn below into a component -->
+    <div class="keyboard-nav">
       <div
-        class="k-left keyboard-button"
-        class:is-active={currentKeyCode === 37}
-        data-info="Hide sidebar"
+        class="k-up keyboard-button"
+        class:is-active={currentKeyCode === 38}
+        data-info="Previous block"
       >
-        <ArrowKey dir={'left'} />
+        <ArrowKey dir={'up'} />
       </div>
-      <div
-        class="k-down keyboard-button"
-        class:is-active={currentKeyCode === 40}
-        data-info="Next block"
-      >
-        <ArrowKey dir={'down'} />
-      </div>
-      <div
-        class="k-right keyboard-button"
-        class:is-active={currentKeyCode === 39}
-        data-info="Show sidebar"
-      >
-        <ArrowKey dir={'right'} />
+      <div class="keyboard-nav-row">
+        <div
+          class="k-left keyboard-button"
+          class:is-active={currentKeyCode === 37}
+          data-info="Hide sidebar"
+        >
+          <ArrowKey dir={'left'} />
+        </div>
+        <div
+          class="k-down keyboard-button"
+          class:is-active={currentKeyCode === 40}
+          data-info="Next block"
+        >
+          <ArrowKey dir={'down'} />
+        </div>
+        <div
+          class="k-right keyboard-button"
+          class:is-active={currentKeyCode === 39}
+          data-info="Show sidebar"
+        >
+          <ArrowKey dir={'right'} />
+        </div>
       </div>
     </div>
   </div>
-</div>
+{:else}
+  <slot />
+{/if}

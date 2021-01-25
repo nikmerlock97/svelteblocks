@@ -24,9 +24,8 @@
 </script>
 
 <svelte:head>
-  <script
-    src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js">
-  </script>
+  <!--<script
+    src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js" ✂prettier:content✂="CiAg">{}</script>-->
   <title>SvelteBlocks - ready-to-go Svelte code blocks</title>
 </svelte:head>
 <main in:fade={{ duration: 500 }}>
@@ -35,18 +34,7 @@
     <div
       class="container flex flex-col items-center px-5 pt-6 pb-12 mx-auto md:py-24 md:flex-row"
     >
-      <div class="w-5/6 lg:max-w-lg lg:w-full md:w-1/2">
-        {#if lottie}
-          <lottie-player
-            src={lottie}
-            background="transparent"
-            speed="1"
-            style="width: 100%; height: 100%;"
-            loop={true}
-            autoplay={true}
-          />
-        {/if}
-      </div>
+      <div class="w-5/6 lg:max-w-lg lg:w-full md:w-1/2" />
     </div>
   </section>
 </main>
