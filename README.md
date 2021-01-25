@@ -1,12 +1,13 @@
 # :bricks: SvelteBlocks
 ### Ready-to-use Svelte + Tailwind CSS code blocks
-##### Features
+
+#### Features
 
 * Dark Mode Support
 * Color Variations
 
 
-To use the project:
+####To use the project:
 
 1. Go to the Tailblocks
 2. Select a block that you would like to use.
