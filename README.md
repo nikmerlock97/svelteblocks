@@ -9,7 +9,7 @@
 
 #### To use the project:
 
-1. Go to the Tailblocks
+1. Go to the [SvelteBlocks](https://svelteblocks.vercel.app/)
 2. Select a block that you would like to use.
 3. Choose a color from the color palette for the block you selected.
 4. Select whether you would like to use light or dark mode with the dark/light toggle button.
