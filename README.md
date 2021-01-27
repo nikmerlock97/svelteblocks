@@ -10,7 +10,7 @@
 #### To use the project:
 
 
-[![tailblocks](https://github.com/mertjf/tailblocks/blob/master/public/preview.gif)](https://tailblocks.cc)
+[![tailblocks](https://github.com/nikmerlock97/svelteblocks/blob/main/static/preview.gif)](https://tailblocks.cc)
 
 1. Go to the [SvelteBlocks](https://svelteblocks.vercel.app/)
 2. Select a block that you would like to use.
