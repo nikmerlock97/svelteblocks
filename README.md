@@ -5,6 +5,7 @@
 
 * Dark Mode Support
 * Color Variations
+* Responsive
 
 
 #### To use the project:
