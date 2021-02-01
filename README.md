@@ -6,6 +6,7 @@
 * Dark Mode Support
 * Color Variations
 * Responsive
+* Fully functional, single page Svelte components
 
 
 #### To use the project:
