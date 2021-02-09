@@ -11,7 +11,6 @@
 
 #### To use the project:
 
-
 [![tailblocks](https://github.com/nikmerlock97/svelteblocks/blob/main/static/preview.gif)](https://tailblocks.cc)
 
 1. Go to the [SvelteBlocks](https://svelteblocks.vercel.app/)
